@@ -48,6 +48,8 @@ const getRoleBasedRedirect = (role) => {
     case 'ADMIN':
       return '/admin/dashboard';
     case 'MANAGER':
+    case 'FINANCE':
+    case 'DIRECTOR':
       return '/manager/dashboard';
     case 'EMPLOYEE':
       return '/employee/dashboard';

@@ -154,24 +154,68 @@ const ExpenseDetail = ({ expenseId, onBack, onEdit, onDelete, onExpenseUpdated }
   };
 
   const canApproveExpense = () => {
-    if (!expense || expense.status !== 'PENDING') return false;
+    console.log('canApproveExpense check:', {
+      expense: expense ? {
+        id: expense._id,
+        status: expense.status,
+        currentApprovalStep: expense.currentApprovalStep,
+        approvalRuleId: expense.approvalRuleId,
+        currentApproverInfo: expense.currentApproverInfo
+      } : null,
+      user: user ? {
+        id: user._id,
+        role: user.role
+      } : null
+    });
+
+    if (!expense || expense.status !== 'PENDING') {
+      console.log('canApproveExpense: false - expense not pending');
+      return false;
+    }
     
     // Admin can approve any pending expense
-    if (user?.role === 'ADMIN') return true;
+    if (user?.role === 'ADMIN') {
+      console.log('canApproveExpense: true - user is admin');
+      return true;
+    }
     
     // Check if user is in the current approval step of a formal approval rule
     if (expense.currentApproverInfo && expense.currentApproverInfo.approvers) {
-      return expense.currentApproverInfo.approvers.some(
+      const isInApprovers = expense.currentApproverInfo.approvers.some(
         approver => approver._id === user?._id
       );
+      console.log('canApproveExpense: checking currentApproverInfo - isInApprovers:', isInApprovers);
+      if (isInApprovers) {
+        console.log('canApproveExpense: true - user in currentApproverInfo');
+        return true;
+      }
     }
     
-    // For manager-based approvals: check if user is the direct manager of the submitter
-    // This allows managers to approve expenses from their team members even without formal approval rules
-    if ((user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR') && expense.submitterId) {
-      return expense.submitterId.managerId === user?._id;
+    // For default workflow: check based on current step and role
+    const currentStep = expense.currentApprovalStep || 0;
+    const isDefaultWorkflow = !expense.approvalRuleId || (expense.approvalRuleId && expense.approvalRuleId.isManagerApprover);
+    
+    console.log('canApproveExpense: default workflow check', {
+      currentStep,
+      isDefaultWorkflow,
+      userRole: user?.role
+    });
+    
+    if (isDefaultWorkflow) {
+      if (currentStep === 0 && user?.role === 'MANAGER' && expense.submitterId) {
+        const isManager = expense.submitterId.managerId === user?._id;
+        console.log('canApproveExpense: step 0 manager check - isManager:', isManager);
+        return isManager;
+      } else if (currentStep === 1 && user?.role === 'FINANCE') {
+        console.log('canApproveExpense: true - step 1 finance user');
+        return true; // Any finance user can approve at step 1
+      } else if (currentStep === 2 && user?.role === 'DIRECTOR') {
+        console.log('canApproveExpense: true - step 2 director user');
+        return true; // Any director user can approve at step 2
+      }
     }
     
+    console.log('canApproveExpense: false - no conditions met');
     return false;
   };
 
@@ -204,8 +248,10 @@ const ExpenseDetail = ({ expenseId, onBack, onEdit, onDelete, onExpenseUpdated }
       setApprovalAction(null);
       setApprovalComments('');
       
+      // Show success message
+      setError('');
+      alert(`${action === 'approve' ? 'Expense approved' : 'Expense rejected'} successfully! Please refresh the expense list to see updated status.`);
     } catch (error) {
-      console.error('Error processing approval:', error);
       setError(error.response?.data?.error?.message || `Failed to ${action} expense`);
     } finally {
       setApprovalLoading(false);
@@ -513,7 +559,7 @@ const ExpenseDetail = ({ expenseId, onBack, onEdit, onDelete, onExpenseUpdated }
                 Current Approval Stage
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
-                Step {expense.currentApproverInfo.stepNumber}
+                {expense.currentApproverInfo.stepName || `Step ${expense.currentApproverInfo.stepNumber}`}
               </Typography>
               <Typography variant="subtitle2" gutterBottom>
                 Awaiting approval from:
@@ -525,6 +571,11 @@ const ExpenseDetail = ({ expenseId, onBack, onEdit, onDelete, onExpenseUpdated }
                   </Avatar>
                   <Typography variant="body2">
                     {approver.firstName} {approver.lastName}
+                    {approver.role && (
+                      <Typography variant="caption" color="text.secondary" sx={{ ml: 1 }}>
+                        ({approver.role})
+                      </Typography>
+                    )}
                   </Typography>
                 </Box>
               ))}

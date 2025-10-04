@@ -221,6 +221,10 @@ const ExpenseForm = ({ expense = null, onSubmit, onCancel }) => {
         result = await expenseService.createExpense(expenseData);
       }
 
+      console.log('Expense save result:', result);
+      console.log('Result success:', result?.success);
+      console.log('Result error:', result?.error);
+
       if (result.success) {
         onSubmit(result.data);
       } else {
@@ -228,6 +232,9 @@ const ExpenseForm = ({ expense = null, onSubmit, onCancel }) => {
       }
     } catch (error) {
       console.error('Error saving expense:', error);
+      console.error('Error response:', error.response);
+      console.error('Error response data:', error.response?.data);
+      console.error('Error response status:', error.response?.status);
       setError(error.response?.data?.error?.message || 'Failed to save expense');
     } finally {
       setLoading(false);

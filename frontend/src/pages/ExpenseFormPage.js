@@ -39,7 +39,7 @@ const ExpenseFormPage = () => {
       {/* Content */}
       <Box sx={{ p: 3 }}>
         <ExpenseForm
-          onSave={handleSave}
+          onSubmit={handleSave}
           onCancel={handleCancel}
         />
       </Box>

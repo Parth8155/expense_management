@@ -79,10 +79,31 @@ const createExpense = async (req, res) => {
     };
 
     const expense = await expenseService.createExpense(expenseData, req.user.userId);
+    console.log('Expense created in controller:', expense._id);
 
+    // Create a safe response object to avoid JSON serialization issues
+    const safeExpense = {
+      _id: expense._id,
+      companyId: expense.companyId,
+      submitterId: expense.submitterId,
+      amount: expense.amount,
+      currency: expense.currency,
+      convertedAmount: expense.convertedAmount,
+      category: expense.category,
+      description: expense.description,
+      expenseDate: expense.expenseDate,
+      status: expense.status,
+      receiptUrl: expense.receiptUrl,
+      currentApprovalStep: expense.currentApprovalStep,
+      expenseLines: expense.expenseLines,
+      createdAt: expense.createdAt,
+      updatedAt: expense.updatedAt
+    };
+
+    console.log('Sending success response with safe expense data');
     res.status(201).json({
       success: true,
-      data: expense
+      data: safeExpense
     });
   } catch (error) {
     console.error('Create expense error:', error);

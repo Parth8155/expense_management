@@ -4,11 +4,14 @@ const expenseService = {
   // Create new expense
   createExpense: async (expenseData) => {
     try {
+      console.log('Frontend: Creating expense with data:', expenseData);
       const response = await api.post('/expenses', expenseData);
-      console.log('Create expense API response:', response.data);
+      console.log('Frontend: Create expense API response status:', response.status);
+      console.log('Frontend: Create expense API response data:', response.data);
       return response.data;
     } catch (error) {
-      console.error('Error creating expense:', error);
+      console.error('Frontend: Error creating expense:', error);
+      console.error('Frontend: Error response:', error.response);
       throw error;
     }
   },
@@ -110,7 +113,7 @@ const expenseService = {
 
   // Get available currencies (for dropdown)
   getCurrencies: async () => {
-    const response = await api.get('/currencies/rates');
+    const response = await api.get('/currencies/rates?base=USD');
     return response.data;
   }
 };

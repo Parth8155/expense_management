@@ -38,6 +38,8 @@ const Dashboard = () => {
     case 'ADMIN':
       return <AdminDashboard />;
     case 'MANAGER':
+    case 'FINANCE':
+    case 'DIRECTOR':
       return <ManagerDashboard />;
     case 'EMPLOYEE':
       return <EmployeeDashboard />;

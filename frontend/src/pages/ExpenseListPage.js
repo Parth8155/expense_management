@@ -94,7 +94,7 @@ const ExpenseListPage = () => {
         {(currentView === 'form' || currentView === 'edit') && (
           <ExpenseForm
             expense={selectedExpense}
-            onSave={handleExpenseSaved}
+            onSubmit={handleExpenseSaved}
             onCancel={handleBack}
           />
         )}

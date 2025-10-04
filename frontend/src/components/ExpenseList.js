@@ -390,7 +390,10 @@ const ExpenseList = ({ onViewExpense, onEditExpense, onCreateExpense }) => {
                   <TableCell align="right">Amount</TableCell>
                   <TableCell>Status</TableCell>
                   {(user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR' || user?.role === 'ADMIN') && (
-                    <TableCell>Submitter</TableCell>
+                    <>
+                      <TableCell>Approval Step</TableCell>
+                      <TableCell>Submitter</TableCell>
+                    </>
                   )}
                   <TableCell align="center">Actions</TableCell>
                 </TableRow>
@@ -399,7 +402,7 @@ const ExpenseList = ({ onViewExpense, onEditExpense, onCreateExpense }) => {
                 {expenses.length === 0 ? (
                   <TableRow>
                     <TableCell 
-                      colSpan={user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR' || user?.role === 'ADMIN' ? 7 : 6} 
+                      colSpan={user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR' || user?.role === 'ADMIN' ? 8 : 6} 
                       align="center"
                       sx={{ py: 3 }}
                     >
@@ -452,11 +455,20 @@ const ExpenseList = ({ onViewExpense, onEditExpense, onCreateExpense }) => {
                         </Box>
                       </TableCell>
                       {(user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR' || user?.role === 'ADMIN') && (
-                        <TableCell>
-                          <Typography variant="body2">
-                            {expense.submitterId?.firstName} {expense.submitterId?.lastName}
-                          </Typography>
-                        </TableCell>
+                        <>
+                          <TableCell>
+                            <Chip
+                              label={`Step ${expense.currentApprovalStep || 0}`}
+                              size="small"
+                              variant="outlined"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2">
+                              {expense.submitterId?.firstName} {expense.submitterId?.lastName}
+                            </Typography>
+                          </TableCell>
+                        </>
                       )}
                       <TableCell align="center">
                         <Box sx={{ display: 'flex', gap: 0.5 }}>

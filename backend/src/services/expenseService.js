@@ -65,6 +65,7 @@ const createExpense = async (expenseData, userId) => {
 
     // Save expense
     await expense.save();
+    console.log('Expense saved successfully with ID:', expense._id);
 
     // Trigger approval workflow initiation
     const { initiateApprovalWorkflow } = require('./approvalService');
@@ -75,8 +76,11 @@ const createExpense = async (expenseData, userId) => {
     } catch (workflowError) {
       // Log error but don't block expense creation
       console.error('Failed to initiate approval workflow:', workflowError.message);
+      console.error('Workflow error stack:', workflowError.stack);
+      // Don't re-throw - expense should still be created
     }
 
+    console.log('Returning expense from service:', expense._id);
     return expense;
   } catch (error) {
     if (error.name === 'ValidationError') {
@@ -108,12 +112,42 @@ const getExpenses = async (userId, role, filters = {}) => {
       // Employees can only see their own expenses
       query.submitterId = userId;
     } else if (role === 'MANAGER' || role === 'FINANCE' || role === 'DIRECTOR') {
-      // Managers, Finance, and Directors can see expenses from their team members
+      // Managers, Finance, and Directors can see expenses from their team members and their own
       const teamMembers = await User.find({ managerId: userId, isActive: true });
       const teamMemberIds = teamMembers.map(member => member._id);
       // Include their own expenses
       teamMemberIds.push(userId);
-      query.submitterId = { $in: teamMemberIds };
+
+      // Also include pending expenses that this user can approve
+      // This ensures approval workflow works even across different management hierarchies
+      const approvalExpenses = await Expense.find({
+        companyId: user.companyId,
+        status: 'PENDING'
+      }).populate('submitterId', 'managerId');
+
+      const approvalExpenseIds = [];
+      for (const expense of approvalExpenses) {
+        const currentStep = expense.currentApprovalStep || 0;
+        const isDefaultWorkflow = !expense.approvalRuleId || (expense.approvalRuleId && expense.approvalRuleId.isManagerApprover);
+
+        if (isDefaultWorkflow) {
+          if ((currentStep === 0 && role === 'MANAGER' && expense.submitterId.managerId && expense.submitterId.managerId.toString() === userId) ||
+              (currentStep === 1 && role === 'FINANCE') ||
+              (currentStep === 2 && role === 'DIRECTOR')) {
+            approvalExpenseIds.push(expense._id);
+          }
+        }
+      }
+
+      // Combine team expenses and approval expenses
+      if (approvalExpenseIds.length > 0) {
+        query.$or = [
+          { submitterId: { $in: teamMemberIds } },
+          { _id: { $in: approvalExpenseIds } }
+        ];
+      } else {
+        query.submitterId = { $in: teamMemberIds };
+      }
     }
     // ADMIN can see all expenses in the company (no additional filter needed)
 
@@ -228,7 +262,30 @@ const getExpenseById = async (expenseId, userId, role) => {
         isActive: true
       });
 
-      if (!isOwnExpense && !isTeamMemberExpense) {
+      // Also check if this user can approve this expense (for approval workflow)
+      let canApproveExpense = false;
+      if (expense.status === 'PENDING') {
+        const currentStep = expense.currentApprovalStep || 0;
+        const isDefaultWorkflow = !expense.approvalRuleId || (expense.approvalRuleId && expense.approvalRuleId.isManagerApprover);
+
+        console.log(`Expense ${expenseId}: role=${role}, currentStep=${currentStep}, isDefaultWorkflow=${isDefaultWorkflow}, submitterManager=${expense.submitterId.managerId}`);
+
+        if (isDefaultWorkflow) {
+          if ((currentStep === 0 && role === 'MANAGER' && expense.submitterId.managerId && expense.submitterId.managerId.toString() === userId) ||
+              (currentStep === 1 && role === 'FINANCE') ||
+              (currentStep === 2 && role === 'DIRECTOR')) {
+            canApproveExpense = true;
+            console.log(`Expense ${expenseId}: User can approve (step ${currentStep}, role ${role})`);
+          } else {
+            console.log(`Expense ${expenseId}: User cannot approve (step ${currentStep}, role ${role})`);
+          }
+        }
+      }
+
+      console.log(`Expense ${expenseId}: isOwn=${isOwnExpense}, isTeamMember=${isTeamMemberExpense}, canApprove=${canApproveExpense}`);
+
+      if (!isOwnExpense && !isTeamMemberExpense && !canApproveExpense) {
+        console.log(`Expense ${expenseId}: Access denied for user ${userId} with role ${role}`);
         throw new Error('Unauthorized to view this expense');
       }
     }
@@ -261,17 +318,65 @@ const getExpenseById = async (expenseId, userId, role) => {
 
     // Get current approver info if expense is pending
     let currentApproverInfo = null;
-    if (expense.status === 'PENDING' && expense.approvalRuleId) {
-      const approvalRule = expense.approvalRuleId;
-      if (approvalRule.approvalSteps && approvalRule.approvalSteps.length > expense.currentApprovalStep) {
-        const currentStep = approvalRule.approvalSteps[expense.currentApprovalStep];
-        if (currentStep && currentStep.approvers && currentStep.approvers.length > 0) {
-          const approverIds = currentStep.approvers.map(a => a.userId);
-          const approvers = await User.find({ _id: { $in: approverIds } }, 'firstName lastName email role');
+    if (expense.status === 'PENDING') {
+      // Check if this uses the default sequential workflow
+      const isDefaultWorkflow = !expense.approvalRuleId || (expense.approvalRuleId && expense.approvalRuleId.isManagerApprover);
+      const currentStep = expense.currentApprovalStep || 0;
+
+      if (isDefaultWorkflow) {
+        // Default workflow: Manager → Finance → Director
+        let stepName = '';
+        let approvers = [];
+
+        if (currentStep === 0) {
+          stepName = 'Manager Approval';
+          if (expense.submitterId.managerId) {
+            const manager = await User.findById(expense.submitterId.managerId, 'firstName lastName email role');
+            if (manager) {
+              approvers = [manager];
+            }
+          }
+        } else if (currentStep === 1) {
+          stepName = 'Finance Approval';
+          // Find all FINANCE users in the company
+          const financeUsers = await User.find({
+            companyId: expense.companyId,
+            role: 'FINANCE',
+            isActive: true
+          }, 'firstName lastName email role');
+          approvers = financeUsers;
+        } else if (currentStep === 2) {
+          stepName = 'Director Approval';
+          // Find all DIRECTOR users in the company
+          const directorUsers = await User.find({
+            companyId: expense.companyId,
+            role: 'DIRECTOR',
+            isActive: true
+          }, 'firstName lastName email role');
+          approvers = directorUsers;
+        }
+
+        if (approvers.length > 0) {
           currentApproverInfo = {
-            stepNumber: expense.currentApprovalStep + 1,
+            stepNumber: currentStep + 1,
+            stepName: stepName,
             approvers: approvers
           };
+        }
+      } else if (expense.approvalRuleId) {
+        // Formal approval rule workflow
+        const approvalRule = expense.approvalRuleId;
+        if (approvalRule.approvalSteps && approvalRule.approvalSteps.length > expense.currentApprovalStep) {
+          const currentStepData = approvalRule.approvalSteps[expense.currentApprovalStep];
+          if (currentStepData && currentStepData.approvers && currentStepData.approvers.length > 0) {
+            const approverIds = currentStepData.approvers.map(a => a.userId);
+            const approvers = await User.find({ _id: { $in: approverIds } }, 'firstName lastName email role');
+            currentApproverInfo = {
+              stepNumber: expense.currentApprovalStep + 1,
+              stepName: `Step ${expense.currentApprovalStep + 1}`,
+              approvers: approvers
+            };
+          }
         }
       }
     }
