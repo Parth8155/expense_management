@@ -35,15 +35,17 @@ const initiateApprovalWorkflow = async (expenseId) => {
     
     // If no approval rule is assigned, we need to find one or handle manager-only approval
     if (!approvalRule) {
-      // For now, if there's a manager and no rule, route to manager
+      // For now, if there's a manager, route to manager
       // In a real system, you might have default rules or rule selection logic
       if (submitter.managerId) {
         // Create a simple manager approval by setting currentApprovalStep
         expense.currentApprovalStep = 0;
         await expense.save();
+        console.log(`Approval workflow initiated for expense ${expenseId}: routed to manager ${submitter.managerId}`);
         return expense;
       } else {
         // No approval rule and no manager - auto-approve or throw error
+        console.log(`No approval workflow initiated for expense ${expenseId}: no manager and no approval rule`);
         throw new Error('No approval rule configured and no manager assigned');
       }
     }
@@ -110,11 +112,14 @@ const processApproval = async (expenseId, approverId, action, comments = null) =
       throw new Error('Comments are required for rejection');
     }
 
+    // Check if this is a manager-based approval (no approval rule)
+    const isManagerApproval = !expense.approvalRuleId && expense.submitterId.managerId && expense.submitterId.managerId.toString() === approverId;
+
     // Record the approval action
     const approvalAction = await ApprovalAction.create({
       expenseId,
       approverId,
-      stepNumber: expense.currentApprovalStep,
+      stepNumber: expense.currentApprovalStep || 0,
       action,
       comments
     });
@@ -127,15 +132,21 @@ const processApproval = async (expenseId, approverId, action, comments = null) =
         .populate('approvalRuleId');
     }
 
-    // Handle approval - evaluate conditional rules
-    const shouldAutoApprove = await evaluateConditionalRules(expenseId, approverId);
-
-    if (shouldAutoApprove) {
-      // Auto-approve and skip remaining steps
+    // Handle approval
+    if (isManagerApproval) {
+      // Direct manager approval - finalize immediately
       await finalizeApproval(expenseId);
     } else {
-      // Move to next approver
-      await moveToNextApprover(expenseId);
+      // Handle approval - evaluate conditional rules
+      const shouldAutoApprove = await evaluateConditionalRules(expenseId, approverId);
+
+      if (shouldAutoApprove) {
+        // Auto-approve and skip remaining steps
+        await finalizeApproval(expenseId);
+      } else {
+        // Move to next approver
+        await moveToNextApprover(expenseId);
+      }
     }
 
     return await Expense.findById(expenseId)
@@ -373,6 +384,8 @@ const getPendingApprovals = async (userId) => {
       throw new Error('User not found');
     }
 
+    console.log(`Getting pending approvals for user ${userId} (${user.role}) in company ${user.companyId}`);
+
     // Find all pending expenses in the user's company
     const pendingExpenses = await Expense.find({
       companyId: user.companyId,
@@ -381,41 +394,44 @@ const getPendingApprovals = async (userId) => {
       .populate('submitterId', 'firstName lastName email managerId')
       .populate('approvalRuleId');
 
+    console.log(`Found ${pendingExpenses.length} pending expenses in company`);
+    
+    // Debug: Log submitter manager relationships
+    pendingExpenses.forEach(expense => {
+      console.log(`Expense ${expense._id}: submitter ${expense.submitterId.firstName} ${expense.submitterId.lastName}, managerId: ${expense.submitterId.managerId}`);
+    });
+
     // Filter expenses where the user is a current approver
     const userApprovals = [];
 
     for (const expense of pendingExpenses) {
-      // Check if user is the manager and manager approval is required
-      if (expense.submitterId.managerId && expense.submitterId.managerId.toString() === userId) {
-        const rule = expense.approvalRuleId;
-        if (rule && rule.isManagerApprover && expense.currentApprovalStep === 0) {
-          // Check if manager has already approved
-          const alreadyApproved = await ApprovalAction.exists({
-            expenseId: expense._id,
-            approverId: userId,
-            stepNumber: expense.currentApprovalStep,
-            action: 'APPROVED'
-          });
+      let isApprover = false;
 
-          if (!alreadyApproved) {
-            userApprovals.push(expense);
-            continue;
-          }
+      // For MANAGER, FINANCE, DIRECTOR roles: check if they manage the submitter OR are in approval steps
+      if (['MANAGER', 'FINANCE', 'DIRECTOR'].includes(user.role)) {
+        // Check if user is the direct manager of the submitter
+        if (expense.submitterId.managerId && expense.submitterId.managerId.toString() === userId) {
+          // Managers can always see expenses from their team members that are pending
+          // This ensures managers have visibility into all team expenses needing approval
+          console.log(`User ${userId} is manager for expense ${expense._id} submitted by ${expense.submitterId.firstName} ${expense.submitterId.lastName}`);
+          isApprover = true;
+        } else {
+          console.log(`User ${userId} is NOT manager for expense ${expense._id} (submitter manager: ${expense.submitterId.managerId})`);
         }
       }
 
-      // Check if user is in the current approval step
+      // Check if user is in the current approval step of the approval rule
       if (expense.approvalRuleId && expense.approvalRuleId.approvalSteps) {
         const currentStep = expense.approvalRuleId.approvalSteps.find(
           step => step.sequenceOrder === expense.currentApprovalStep + 1
         );
 
         if (currentStep && currentStep.approvers) {
-          const isApprover = currentStep.approvers.some(
+          const isInStep = currentStep.approvers.some(
             approver => approver.userId.toString() === userId.toString()
           );
 
-          if (isApprover) {
+          if (isInStep) {
             // Check if user has already approved this step
             const alreadyApproved = await ApprovalAction.exists({
               expenseId: expense._id,
@@ -425,15 +441,21 @@ const getPendingApprovals = async (userId) => {
             });
 
             if (!alreadyApproved) {
-              userApprovals.push(expense);
+              isApprover = true;
             }
           }
         }
       }
+
+      if (isApprover) {
+        userApprovals.push(expense);
+      }
     }
 
+    console.log(`Returning ${userApprovals.length} pending approvals for user ${userId}`);
     return userApprovals;
   } catch (error) {
+    console.error('Error getting pending approvals:', error);
     throw error;
   }
 };

@@ -361,12 +361,12 @@ const changeUserRole = async (req, res) => {
     }
 
     // Validate role value
-    if (!['ADMIN', 'MANAGER', 'EMPLOYEE'].includes(role)) {
+    if (!['ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE', 'DIRECTOR'].includes(role)) {
       return res.status(400).json({
         success: false,
         error: {
           code: 'VALIDATION_ERROR',
-          message: 'Invalid role. Must be ADMIN, MANAGER, or EMPLOYEE'
+          message: 'Invalid role. Must be ADMIN, MANAGER, EMPLOYEE, FINANCE, or DIRECTOR'
         }
       });
     }

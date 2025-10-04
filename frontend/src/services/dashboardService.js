@@ -22,13 +22,13 @@ export const dashboardService = {
           };
         }
         
-        // Calculate summary statistics
+        // Calculate summary statistics using converted amounts
         const summary = {
           total: allExpenses.length,
           pending: allExpenses.filter(e => e.status === 'PENDING').length,
           approved: allExpenses.filter(e => e.status === 'APPROVED').length,
           rejected: allExpenses.filter(e => e.status === 'REJECTED').length,
-          totalAmount: allExpenses.reduce((sum, e) => sum + (e.amount || 0), 0)
+          totalAmount: allExpenses.reduce((sum, e) => sum + (e.convertedAmount || e.amount || 0), 0)
         };
         
         return {
@@ -51,22 +51,20 @@ export const dashboardService = {
   // Get manager dashboard data
   getManagerDashboard: async () => {
     try {
-      const [expensesResponse, approvalsResponse] = await Promise.all([
-        api.get('/expenses?limit=5&sort=-createdAt'),
-        api.get('/approvals/pending')
+      const [expensesResponse] = await Promise.all([
+        api.get('/expenses?limit=5&sort=-createdAt')
       ]);
       
-      if (expensesResponse.data.success && approvalsResponse.data.success) {
+      if (expensesResponse.data.success) {
         const recentExpenses = expensesResponse.data.data || [];
-        const pendingApprovals = approvalsResponse.data.data || [];
         
         // Get all team expenses for summary
         const allExpensesResponse = await api.get('/expenses');
         const allExpenses = allExpensesResponse.data.data || [];
         
         // Ensure arrays
-        if (!Array.isArray(recentExpenses) || !Array.isArray(pendingApprovals) || !Array.isArray(allExpenses)) {
-          console.error('Invalid data format:', { recentExpenses, pendingApprovals, allExpenses });
+        if (!Array.isArray(recentExpenses) || !Array.isArray(allExpenses)) {
+          console.error('Invalid data format:', { recentExpenses, allExpenses });
           return { 
             success: false, 
             error: 'Invalid data format received from server' 
@@ -78,15 +76,14 @@ export const dashboardService = {
           pending: allExpenses.filter(e => e.status === 'PENDING').length,
           approved: allExpenses.filter(e => e.status === 'APPROVED').length,
           rejected: allExpenses.filter(e => e.status === 'REJECTED').length,
-          pendingApprovals: pendingApprovals.length,
-          totalAmount: allExpenses.reduce((sum, e) => sum + (e.amount || 0), 0)
+          pendingApprovals: allExpenses.filter(e => e.status === 'PENDING').length, // For display purposes
+          totalAmount: allExpenses.reduce((sum, e) => sum + (e.convertedAmount || e.amount || 0), 0)
         };
         
         return {
           success: true,
           summary,
-          recentExpenses,
-          pendingApprovals
+          recentExpenses
         };
       }
       
@@ -174,13 +171,15 @@ export const dashboardService = {
         pending: allExpenses.filter(e => e && e.status === 'PENDING').length,
         approved: allExpenses.filter(e => e && e.status === 'APPROVED').length,
         rejected: allExpenses.filter(e => e && e.status === 'REJECTED').length,
-        totalAmount: allExpenses.reduce((sum, e) => sum + (e && e.amount ? e.amount : 0), 0)
+        totalAmount: allExpenses.reduce((sum, e) => sum + (e && (e.convertedAmount || e.amount) ? (e.convertedAmount || e.amount) : 0), 0)
       };
       
       const userSummary = {
         total: users.length,
         admins: users.filter(u => u && u.role === 'ADMIN').length,
         managers: users.filter(u => u && u.role === 'MANAGER').length,
+        finance: users.filter(u => u && u.role === 'FINANCE').length,
+        directors: users.filter(u => u && u.role === 'DIRECTOR').length,
         employees: users.filter(u => u && u.role === 'EMPLOYEE').length,
         active: users.filter(u => u && u.isActive).length
       };

@@ -69,7 +69,9 @@ const createExpense = async (expenseData, userId) => {
     // Trigger approval workflow initiation
     const { initiateApprovalWorkflow } = require('./approvalService');
     try {
+      console.log(`Initiating approval workflow for expense ${expense._id} submitted by user ${userId}`);
       await initiateApprovalWorkflow(expense._id);
+      console.log(`Approval workflow initiated successfully for expense ${expense._id}`);
     } catch (workflowError) {
       // Log error but don't block expense creation
       console.error('Failed to initiate approval workflow:', workflowError.message);
@@ -88,7 +90,7 @@ const createExpense = async (expenseData, userId) => {
 /**
  * Get expenses with role-based filtering
  * @param {string} userId - ID of the user requesting expenses
- * @param {string} role - Role of the user (ADMIN, MANAGER, EMPLOYEE)
+ * @param {string} role - Role of the user (ADMIN, MANAGER, EMPLOYEE, FINANCE, DIRECTOR)
  * @param {Object} filters - Optional filters (status, dateFrom, dateTo, category)
  * @returns {Promise<Array>} - Array of expenses
  */
@@ -105,11 +107,11 @@ const getExpenses = async (userId, role, filters = {}) => {
     if (role === 'EMPLOYEE') {
       // Employees can only see their own expenses
       query.submitterId = userId;
-    } else if (role === 'MANAGER') {
-      // Managers can see expenses from their team members
+    } else if (role === 'MANAGER' || role === 'FINANCE' || role === 'DIRECTOR') {
+      // Managers, Finance, and Directors can see expenses from their team members
       const teamMembers = await User.find({ managerId: userId, isActive: true });
       const teamMemberIds = teamMembers.map(member => member._id);
-      // Include manager's own expenses
+      // Include their own expenses
       teamMemberIds.push(userId);
       query.submitterId = { $in: teamMemberIds };
     }
@@ -136,7 +138,7 @@ const getExpenses = async (userId, role, filters = {}) => {
 
     // Execute query with population
     let expenseQuery = Expense.find(query)
-      .populate('submitterId', 'firstName lastName email')
+      .populate('submitterId', 'firstName lastName email managerId')
       .sort({ expenseDate: -1, createdAt: -1 });
 
     // Apply limit if specified
@@ -145,6 +147,42 @@ const getExpenses = async (userId, role, filters = {}) => {
     }
 
     const expenses = await expenseQuery;
+
+    // For managers, finance, directors, and admins, ensure currency conversion
+    if (role === 'MANAGER' || role === 'FINANCE' || role === 'DIRECTOR' || role === 'ADMIN') {
+      const company = await Company.findById(user.companyId);
+      
+      // Process each expense to ensure converted amounts
+      for (let expense of expenses) {
+        if (expense.currency !== company.defaultCurrency) {
+          // If convertedAmount is not set or is null, try to convert it now
+          if (!expense.convertedAmount) {
+            try {
+              expense.convertedAmount = await convertAmount(
+                expense.amount,
+                expense.currency,
+                company.defaultCurrency
+              );
+              // Update the expense in database for future use
+              await Expense.findByIdAndUpdate(expense._id, { 
+                convertedAmount: expense.convertedAmount 
+              });
+            } catch (conversionError) {
+              console.error(`Currency conversion failed for expense ${expense._id}:`, conversionError.message);
+              expense.convertedAmount = null;
+            }
+          }
+        } else {
+          // If currency is the same as company default, convertedAmount should equal amount
+          if (expense.convertedAmount !== expense.amount) {
+            expense.convertedAmount = expense.amount;
+            await Expense.findByIdAndUpdate(expense._id, { 
+              convertedAmount: expense.convertedAmount 
+            });
+          }
+        }
+      }
+    }
 
     return expenses;
   } catch (error) {
@@ -156,7 +194,7 @@ const getExpenses = async (userId, role, filters = {}) => {
  * Get expense by ID with authorization checks
  * @param {string} expenseId - ID of the expense
  * @param {string} userId - ID of the user requesting the expense
- * @param {string} role - Role of the user (ADMIN, MANAGER, EMPLOYEE)
+ * @param {string} role - Role of the user (ADMIN, MANAGER, EMPLOYEE, FINANCE, DIRECTOR)
  * @returns {Promise<Object>} - Expense with approval history
  */
 const getExpenseById = async (expenseId, userId, role) => {
@@ -168,7 +206,7 @@ const getExpenseById = async (expenseId, userId, role) => {
 
     // Get expense with populated fields
     const expense = await Expense.findById(expenseId)
-      .populate('submitterId', 'firstName lastName email')
+      .populate('submitterId', 'firstName lastName email managerId')
       .populate('approvalRuleId');
 
     if (!expense) {
@@ -181,8 +219,8 @@ const getExpenseById = async (expenseId, userId, role) => {
       if (expense.submitterId._id.toString() !== userId) {
         throw new Error('Unauthorized to view this expense');
       }
-    } else if (role === 'MANAGER') {
-      // Managers can view expenses from their team members and their own
+    } else if (role === 'MANAGER' || role === 'FINANCE' || role === 'DIRECTOR') {
+      // Managers, Finance, and Directors can view expenses from their team members and their own
       const isOwnExpense = expense.submitterId._id.toString() === userId;
       const isTeamMemberExpense = await User.exists({
         _id: expense.submitterId._id,
@@ -210,11 +248,11 @@ const getExpenseById = async (expenseId, userId, role) => {
     // Get company for currency conversion
     const company = await Company.findById(user.companyId);
 
-    // Convert amount to company default currency if needed and user is Manager or Admin
+    // Convert amount to company default currency if needed and user is Manager, Finance, Director or Admin
     let displayAmount = expense.amount;
     let displayCurrency = expense.currency;
 
-    if ((role === 'MANAGER' || role === 'ADMIN') && expense.currency !== company.defaultCurrency) {
+    if ((role === 'MANAGER' || role === 'FINANCE' || role === 'DIRECTOR' || role === 'ADMIN') && expense.currency !== company.defaultCurrency) {
       if (expense.convertedAmount) {
         displayAmount = expense.convertedAmount;
         displayCurrency = company.defaultCurrency;

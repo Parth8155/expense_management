@@ -17,8 +17,8 @@ const Header = () => {
     if (!user) return [];
 
     const items = [
-      { path: '/dashboard', label: 'Dashboard', roles: ['ADMIN', 'MANAGER', 'EMPLOYEE'] },
-      { path: '/expenses', label: 'Expenses', roles: ['ADMIN', 'MANAGER', 'EMPLOYEE'] },
+      { path: '/dashboard', label: 'Dashboard', roles: ['ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE', 'DIRECTOR'] },
+      { path: '/expenses', label: 'Expenses', roles: ['ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE', 'DIRECTOR'] },
     ];
 
     // Add role-specific navigation items

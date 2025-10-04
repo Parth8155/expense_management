@@ -1,5 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Container,
+  Grid,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Box,
+  Chip,
+  Divider,
+  Alert,
+  CircularProgress
+} from '@mui/material';
+import {
+  People as PeopleIcon,
+  Assignment as AssignmentIcon,
+  AttachMoney as MoneyIcon,
+  CheckCircle as ApprovedIcon,
+  Cancel as RejectedIcon,
+  Pending as PendingIcon,
+  Add as AddIcon
+} from '@mui/icons-material';
+import { useAuth } from '../contexts/AuthContext';
 import dashboardService from '../services/dashboardService';
 
 const ManagerDashboard = () => {
@@ -7,6 +30,7 @@ const ManagerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -34,7 +58,7 @@ const ManagerDashboard = () => {
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD'
+      currency: user?.defaultCurrency || 'USD'
     }).format(amount);
   };
 
@@ -49,266 +73,224 @@ const ManagerDashboard = () => {
   const getStatusColor = (status) => {
     switch (status) {
       case 'APPROVED':
-        return '#10b981'; // green
+        return 'success';
       case 'REJECTED':
-        return '#ef4444'; // red
+        return 'error';
       case 'PENDING':
-        return '#f59e0b'; // yellow
+        return 'warning';
       default:
-        return '#6b7280'; // gray
+        return 'default';
     }
   };
 
   if (loading) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <div>Loading dashboard...</div>
-      </div>
+      <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+          <CircularProgress size={60} />
+          <Typography variant="h6" color="text.secondary">
+            Loading dashboard...
+          </Typography>
+        </Box>
+      </Container>
     );
   }
 
   if (error) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center', color: '#ef4444' }}>
-        <div>Error: {error}</div>
-        <button 
-          onClick={() => window.location.reload()}
-          style={{
-            marginTop: '10px',
-            padding: '8px 16px',
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer'
-          }}
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Alert
+          severity="error"
+          action={
+            <Button color="inherit" size="small" onClick={() => window.location.reload()}>
+              Retry
+            </Button>
+          }
         >
-          Retry
-        </button>
-      </div>
+          {error}
+        </Alert>
+      </Container>
     );
   }
 
-  const { summary, recentExpenses, pendingApprovals } = dashboardData;
+  const { summary, recentExpenses } = dashboardData;
 
   return (
-    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '30px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
           Manager Dashboard
-        </h1>
-        <p style={{ color: '#6b7280' }}>
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
           Manage your team's expenses and approvals.
-        </p>
-      </div>
+        </Typography>
+      </Box>
 
       {/* Team Expense Summary Cards */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
-        gap: '20px',
-        marginBottom: '30px'
-      }}>
-        <div style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #e5e7eb'
-        }}>
-          <h3 style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>
-            Team Expenses
-          </h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#111827' }}>
-            {summary.total}
-          </p>
-        </div>
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <PeopleIcon color="primary" sx={{ mr: 1 }} />
+                <Typography variant="body2" color="text.secondary">
+                  Team Expenses
+                </Typography>
+              </Box>
+              <Typography variant="h4" fontWeight="bold">
+                {summary.total}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <div style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #e5e7eb'
-        }}>
-          <h3 style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>
-            Pending Approvals
-          </h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#f59e0b' }}>
-            {summary.pendingApprovals}
-          </p>
-        </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <PendingIcon sx={{ mr: 1, color: 'warning.main' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Pending Approvals
+                </Typography>
+              </Box>
+              <Typography variant="h4" fontWeight="bold" color="warning.main">
+                {summary.pendingApprovals}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <div style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #e5e7eb'
-        }}>
-          <h3 style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>
-            Approved
-          </h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#10b981' }}>
-            {summary.approved}
-          </p>
-        </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <ApprovedIcon sx={{ mr: 1, color: 'success.main' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Approved
+                </Typography>
+              </Box>
+              <Typography variant="h4" fontWeight="bold" color="success.main">
+                {summary.approved}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <div style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #e5e7eb'
-        }}>
-          <h3 style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>
-            Rejected
-          </h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ef4444' }}>
-            {summary.rejected}
-          </p>
-        </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <RejectedIcon sx={{ mr: 1, color: 'error.main' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Rejected
+                </Typography>
+              </Box>
+              <Typography variant="h4" fontWeight="bold" color="error.main">
+                {summary.rejected}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-        <div style={{
-          backgroundColor: 'white',
-          padding: '20px',
-          borderRadius: '8px',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-          border: '1px solid #e5e7eb'
-        }}>
-          <h3 style={{ fontSize: '14px', fontWeight: '500', color: '#6b7280', marginBottom: '8px' }}>
-            Total Amount
-          </h3>
-          <p style={{ fontSize: '20px', fontWeight: 'bold', color: '#111827' }}>
-            {formatCurrency(summary.totalAmount)}
-          </p>
-        </div>
-      </div>
+        <Grid item xs={12} sm={6} md={3}>
+          <Card sx={{ height: '100%' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <MoneyIcon sx={{ mr: 1, color: 'primary.main' }} />
+                <Typography variant="body2" color="text.secondary">
+                  Total Amount
+                </Typography>
+              </Box>
+              <Typography variant="h5" fontWeight="bold">
+                {formatCurrency(summary.totalAmount)}
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* Quick Actions */}
-      <div style={{ marginBottom: '30px', display: 'flex', gap: '12px' }}>
-        <button
-          onClick={() => navigate('/approvals')}
-          style={{
-            backgroundColor: '#f59e0b',
-            color: 'white',
-            padding: '12px 24px',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '16px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#d97706'}
-          onMouseOut={(e) => e.target.style.backgroundColor = '#f59e0b'}
+      <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        <Button
+          variant="contained"
+          color="warning"
+          startIcon={<AssignmentIcon />}
+          onClick={() => navigate('/expenses')}
+          size="large"
         >
-          View Pending Approvals ({summary.pendingApprovals})
-        </button>
-        
-        <button
+          Review Expenses ({summary.pendingApprovals} pending)
+        </Button>
+
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
           onClick={() => navigate('/expenses/new')}
-          style={{
-            backgroundColor: '#3b82f6',
-            color: 'white',
-            padding: '12px 24px',
-            border: 'none',
-            borderRadius: '6px',
-            fontSize: '16px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'background-color 0.2s'
-          }}
-          onMouseOver={(e) => e.target.style.backgroundColor = '#2563eb'}
-          onMouseOut={(e) => e.target.style.backgroundColor = '#3b82f6'}
+          size="large"
         >
-          + Submit New Expense
-        </button>
-      </div>
+          Submit New Expense
+        </Button>
+      </Box>
 
       {/* Recent Team Expenses */}
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-        border: '1px solid #e5e7eb'
-      }}>
-        <div style={{ padding: '20px', borderBottom: '1px solid #e5e7eb' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2 style={{ fontSize: '18px', fontWeight: '600', color: '#111827' }}>
+      <Card>
+        <CardContent sx={{ pb: 0 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h6" fontWeight="600">
               Recent Team Expenses
-            </h2>
-            <button
+            </Typography>
+            <Button
+              variant="text"
               onClick={() => navigate('/expenses')}
-              style={{
-                color: '#3b82f6',
-                backgroundColor: 'transparent',
-                border: 'none',
-                fontSize: '14px',
-                cursor: 'pointer',
-                textDecoration: 'underline'
-              }}
+              sx={{ textTransform: 'none' }}
             >
               View All
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Box>
+        </CardContent>
 
-        <div style={{ padding: '0' }}>
+        <Box>
           {recentExpenses && recentExpenses.length > 0 ? (
-            <div>
-              {recentExpenses.map((expense, index) => (
-                <div
-                  key={expense._id}
-                  style={{
-                    padding: '16px 20px',
-                    borderBottom: index < recentExpenses.length - 1 ? '1px solid #f3f4f6' : 'none',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center'
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: '500', color: '#111827', marginBottom: '4px' }}>
+            recentExpenses.map((expense, index) => (
+              <Box key={expense._id}>
+                <Box sx={{ px: 3, py: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box>
+                    <Typography variant="body1" fontWeight="500" gutterBottom>
                       {expense.description}
-                    </div>
-                    <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
                       {expense.category} • {formatDate(expense.expenseDate)}
                       {expense.submitterName && ` • ${expense.submitterName}`}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontWeight: '600', color: '#111827', marginBottom: '4px' }}>
+                    </Typography>
+                  </Box>
+                  <Box sx={{ textAlign: 'right' }}>
+                    <Typography variant="body1" fontWeight="600" gutterBottom>
                       {formatCurrency(expense.convertedAmount || expense.amount)}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '12px',
-                        fontWeight: '500',
-                        color: getStatusColor(expense.status),
-                        backgroundColor: `${getStatusColor(expense.status)}20`,
-                        padding: '2px 8px',
-                        borderRadius: '12px',
-                        display: 'inline-block'
-                      }}
-                    >
-                      {expense.status}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                    </Typography>
+                    <Chip
+                      label={expense.status}
+                      size="small"
+                      color={getStatusColor(expense.status)}
+                      variant="outlined"
+                    />
+                  </Box>
+                </Box>
+                {index < recentExpenses.length - 1 && <Divider />}
+              </Box>
+            ))
           ) : (
-            <div style={{ padding: '40px 20px', textAlign: 'center', color: '#6b7280' }}>
-              <div style={{ marginBottom: '8px' }}>No team expenses yet</div>
-              <div style={{ fontSize: '14px' }}>
+            <Box sx={{ p: 5, textAlign: 'center' }}>
+              <Typography variant="body1" color="text.secondary" gutterBottom>
+                No team expenses yet
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
                 Team expenses will appear here once submitted
-              </div>
-            </div>
+              </Typography>
+            </Box>
           )}
-        </div>
-      </div>
-    </div>
+        </Box>
+      </Card>
+    </Container>
   );
 };
 

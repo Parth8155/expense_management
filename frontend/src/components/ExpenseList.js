@@ -218,6 +218,28 @@ const ExpenseList = ({ onViewExpense, onEditExpense, onCreateExpense }) => {
            (user?.role === 'ADMIN' || expense.submitterId === user?._id);
   };
 
+  const canApproveExpense = (expense) => {
+    if (!expense || expense.status !== 'PENDING') return false;
+    
+    // Admin can approve any pending expense
+    if (user?.role === 'ADMIN') return true;
+    
+    // Check if user is in the current approval step of a formal approval rule
+    if (expense.currentApproverInfo && expense.currentApproverInfo.approvers) {
+      return expense.currentApproverInfo.approvers.some(
+        approver => approver._id === user?._id
+      );
+    }
+    
+    // For manager-based approvals: check if user is the direct manager of the submitter
+    // This allows managers to approve expenses from their team members even without formal approval rules
+    if ((user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR') && expense.submitterId) {
+      return expense.submitterId.managerId === user?._id;
+    }
+    
+    return false;
+  };
+
   return (
     <Paper elevation={3} sx={{ width: '100%', mb: 2 }}>
       {/* Header with title and create button */}
@@ -367,7 +389,7 @@ const ExpenseList = ({ onViewExpense, onEditExpense, onCreateExpense }) => {
                   <TableCell>Category</TableCell>
                   <TableCell align="right">Amount</TableCell>
                   <TableCell>Status</TableCell>
-                  {(user?.role === 'MANAGER' || user?.role === 'ADMIN') && (
+                  {(user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR' || user?.role === 'ADMIN') && (
                     <TableCell>Submitter</TableCell>
                   )}
                   <TableCell align="center">Actions</TableCell>
@@ -377,7 +399,7 @@ const ExpenseList = ({ onViewExpense, onEditExpense, onCreateExpense }) => {
                 {expenses.length === 0 ? (
                   <TableRow>
                     <TableCell 
-                      colSpan={user?.role === 'MANAGER' || user?.role === 'ADMIN' ? 7 : 6} 
+                      colSpan={user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR' || user?.role === 'ADMIN' ? 7 : 6} 
                       align="center"
                       sx={{ py: 3 }}
                     >
@@ -406,23 +428,33 @@ const ExpenseList = ({ onViewExpense, onEditExpense, onCreateExpense }) => {
                         <Typography variant="body2" fontWeight="medium">
                           {formatCurrency(expense.amount, expense.currency)}
                         </Typography>
-                        {expense.convertedAmount && expense.currency !== user?.company?.defaultCurrency && (
+                        {expense.convertedAmount && expense.currency !== user?.defaultCurrency && (
                           <Typography variant="caption" color="text.secondary" display="block">
-                            {formatCurrency(expense.convertedAmount, user?.company?.defaultCurrency)}
+                            {formatCurrency(expense.convertedAmount, user?.defaultCurrency)}
                           </Typography>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Chip
-                          label={expense.status}
-                          color={STATUS_COLORS[expense.status]}
-                          size="small"
-                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Chip
+                            label={expense.status}
+                            color={STATUS_COLORS[expense.status]}
+                            size="small"
+                          />
+                          {canApproveExpense(expense) && (
+                            <Chip
+                              label="Needs Your Approval"
+                              color="info"
+                              size="small"
+                              variant="outlined"
+                            />
+                          )}
+                        </Box>
                       </TableCell>
-                      {(user?.role === 'MANAGER' || user?.role === 'ADMIN') && (
+                      {(user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR' || user?.role === 'ADMIN') && (
                         <TableCell>
                           <Typography variant="body2">
-                            {expense.submitter?.firstName} {expense.submitter?.lastName}
+                            {expense.submitterId?.firstName} {expense.submitterId?.lastName}
                           </Typography>
                         </TableCell>
                       )}

@@ -34,10 +34,13 @@ import {
   Cancel as CancelIcon,
   Schedule as ScheduleIcon,
   Close as CloseIcon,
-  ZoomIn as ZoomInIcon
+  ZoomIn as ZoomInIcon,
+  ThumbUp as ApproveIcon,
+  ThumbDown as RejectIcon
 } from '@mui/icons-material';
 import AuthContext from '../contexts/AuthContext';
 import expenseService from '../services/expenseService';
+import approvalService from '../services/approvalService';
 
 const STATUS_COLORS = {
   PENDING: 'warning',
@@ -45,12 +48,15 @@ const STATUS_COLORS = {
   REJECTED: 'error'
 };
 
-const ExpenseDetail = ({ expenseId, onBack, onEdit, onDelete }) => {
+const ExpenseDetail = ({ expenseId, onBack, onEdit, onDelete, onExpenseUpdated }) => {
   const { user } = useContext(AuthContext);
   const [expense, setExpense] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [receiptDialogOpen, setReceiptDialogOpen] = useState(false);
+  const [approvalAction, setApprovalAction] = useState(null); // 'approve' or 'reject'
+  const [approvalComments, setApprovalComments] = useState('');
+  const [approvalLoading, setApprovalLoading] = useState(false);
 
   useEffect(() => {
     if (expenseId) {
@@ -147,6 +153,65 @@ const ExpenseDetail = ({ expenseId, onBack, onEdit, onDelete }) => {
            (user?.role === 'ADMIN' || expense.submitterId._id === user?._id);
   };
 
+  const canApproveExpense = () => {
+    if (!expense || expense.status !== 'PENDING') return false;
+    
+    // Admin can approve any pending expense
+    if (user?.role === 'ADMIN') return true;
+    
+    // Check if user is in the current approval step of a formal approval rule
+    if (expense.currentApproverInfo && expense.currentApproverInfo.approvers) {
+      return expense.currentApproverInfo.approvers.some(
+        approver => approver._id === user?._id
+      );
+    }
+    
+    // For manager-based approvals: check if user is the direct manager of the submitter
+    // This allows managers to approve expenses from their team members even without formal approval rules
+    if ((user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR') && expense.submitterId) {
+      return expense.submitterId.managerId === user?._id;
+    }
+    
+    return false;
+  };
+
+  const handleApprovalAction = async (action) => {
+    if (action === 'reject' && !approvalComments.trim()) {
+      setError('Comments are required when rejecting an expense');
+      return;
+    }
+
+    try {
+      setApprovalLoading(true);
+      setError('');
+
+      let result;
+      if (action === 'approve') {
+        result = await approvalService.approveExpense(expense._id, approvalComments);
+      } else if (action === 'reject') {
+        result = await approvalService.rejectExpense(expense._id, approvalComments);
+      }
+
+      // Update the expense data
+      await loadExpenseDetail();
+      
+      // Notify parent component
+      if (onExpenseUpdated) {
+        onExpenseUpdated(result.data);
+      }
+
+      // Reset approval state
+      setApprovalAction(null);
+      setApprovalComments('');
+      
+    } catch (error) {
+      console.error('Error processing approval:', error);
+      setError(error.response?.data?.error?.message || `Failed to ${action} expense`);
+    } finally {
+      setApprovalLoading(false);
+    }
+  };
+
   const getApprovalIcon = (action) => {
     switch (action) {
       case 'APPROVED':
@@ -217,6 +282,94 @@ const ExpenseDetail = ({ expenseId, onBack, onEdit, onDelete }) => {
         </Box>
       </Box>
 
+      {/* Approval Actions for Pending Expenses */}
+      {canApproveExpense() && (
+        <Paper elevation={2} sx={{ p: 3, mb: 3, bgcolor: 'info.light' }}>
+          <Typography variant="h6" gutterBottom color="info.contrastText">
+            Approval Required
+          </Typography>
+          <Typography variant="body2" color="info.contrastText" sx={{ mb: 2 }}>
+            This expense requires your approval. Please review the details and take action.
+          </Typography>
+          
+          {approvalAction && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="subtitle2" color="info.contrastText" gutterBottom>
+                {approvalAction === 'approve' ? 'Approval' : 'Rejection'} Comments 
+                {approvalAction === 'reject' && <span style={{ color: '#ff6b6b' }}>*</span>}
+              </Typography>
+              <textarea
+                value={approvalComments}
+                onChange={(e) => setApprovalComments(e.target.value)}
+                placeholder={
+                  approvalAction === 'reject' 
+                    ? "Please provide a reason for rejection..." 
+                    : "Add any comments (optional)..."
+                }
+                style={{
+                  width: '100%',
+                  minHeight: '80px',
+                  padding: '8px',
+                  border: '1px solid #ccc',
+                  borderRadius: '4px',
+                  fontFamily: 'inherit',
+                  fontSize: '14px'
+                }}
+                disabled={approvalLoading}
+                required={approvalAction === 'reject'}
+              />
+            </Box>
+          )}
+
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            {!approvalAction ? (
+              <>
+                <Button
+                  variant="contained"
+                  color="success"
+                  startIcon={<ApproveIcon />}
+                  onClick={() => setApprovalAction('approve')}
+                  disabled={approvalLoading}
+                >
+                  Approve
+                </Button>
+                <Button
+                  variant="contained"
+                  color="error"
+                  startIcon={<RejectIcon />}
+                  onClick={() => setApprovalAction('reject')}
+                  disabled={approvalLoading}
+                >
+                  Reject
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  color={approvalAction === 'approve' ? 'success' : 'error'}
+                  onClick={() => handleApprovalAction(approvalAction)}
+                  disabled={approvalLoading}
+                >
+                  {approvalLoading ? 'Processing...' : `Confirm ${approvalAction === 'approve' ? 'Approval' : 'Rejection'}`}
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={() => {
+                    setApprovalAction(null);
+                    setApprovalComments('');
+                    setError('');
+                  }}
+                  disabled={approvalLoading}
+                >
+                  Cancel
+                </Button>
+              </>
+            )}
+          </Box>
+        </Paper>
+      )}
+
       <Grid container spacing={3}>
         {/* Main Expense Information */}
         <Grid item xs={12} md={8}>
@@ -240,7 +393,7 @@ const ExpenseDetail = ({ expenseId, onBack, onEdit, onDelete }) => {
                 <Typography variant="h6" gutterBottom>
                   {formatCurrency(expense.originalAmount, expense.originalCurrency)}
                 </Typography>
-                {(user?.role === 'MANAGER' || user?.role === 'ADMIN') && 
+                {(user?.role === 'MANAGER' || user?.role === 'FINANCE' || user?.role === 'DIRECTOR' || user?.role === 'ADMIN') && 
                  expense.displayCurrency !== expense.originalCurrency && (
                   <Typography variant="body2" color="text.secondary">
                     {formatCurrency(expense.displayAmount, expense.displayCurrency)} (converted)

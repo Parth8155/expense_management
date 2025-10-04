@@ -10,7 +10,6 @@ import UserManagementPage from './pages/UserManagementPage';
 import ExpenseListPage from './pages/ExpenseListPage';
 import ExpenseFormPage from './pages/ExpenseFormPage';
 import ApprovalRulesPage from './pages/ApprovalRulesPage';
-import ApprovalManagementPage from './pages/ApprovalManagementPage';
 
 // Create Material-UI theme
 const theme = createTheme({
@@ -63,7 +62,7 @@ function App() {
             <Route 
               path="/dashboard" 
               element={
-                <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'EMPLOYEE']}>
+                <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE', 'DIRECTOR']}>
                   <Dashboard />
                 </ProtectedRoute>
               } 
@@ -83,7 +82,7 @@ function App() {
             <Route 
               path="/expenses" 
               element={
-                <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'EMPLOYEE']}>
+                <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE', 'DIRECTOR']}>
                   <ExpenseListPage />
                 </ProtectedRoute>
               } 
@@ -91,29 +90,13 @@ function App() {
             <Route 
               path="/expenses/new" 
               element={
-                <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'EMPLOYEE']}>
+                <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE', 'DIRECTOR']}>
                   <ExpenseFormPage />
                 </ProtectedRoute>
               } 
             />
 
-            {/* Approval Routes */}
-            <Route 
-              path="/approvals" 
-              element={
-                <ProtectedRoute allowedRoles={['ADMIN', 'MANAGER']}>
-                  <ApprovalManagementPage />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/approval-rules" 
-              element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
-                  <ApprovalRulesPage />
-                </ProtectedRoute>
-              } 
-            />
+            {/* Approval Routes - Removed, approvals now handled from expense details */}
             
             {/* Default redirect */}
             <Route path="/" element={<Navigate to="/login" replace />} />

@@ -40,8 +40,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Role is required'],
     enum: {
-      values: ['ADMIN', 'MANAGER', 'EMPLOYEE'],
-      message: 'Role must be either ADMIN, MANAGER, or EMPLOYEE'
+      values: ['ADMIN', 'MANAGER', 'EMPLOYEE', 'DIRECTOR', 'FINANCE'],
+      message: 'Role must be one of: ADMIN, MANAGER, EMPLOYEE, DIRECTOR, FINANCE'
     }
   },
   isActive: {

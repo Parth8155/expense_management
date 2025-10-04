@@ -28,9 +28,9 @@ const UserForm = ({ userId, onSave, onCancel }) => {
   const loadManagers = async () => {
     try {
       const response = await userService.getUsers();
-      // Filter to get only managers and admins who can be assigned as managers
+      // Filter to get only managers who can be assigned as managers (exclude admins, directors, finance)
       const availableManagers = response.data.users.filter(
-        user => (user.role === 'MANAGER' || user.role === 'ADMIN') && user.isActive
+        user => user.role === 'MANAGER' && user.isActive
       );
       setManagers(availableManagers);
     } catch (err) {
@@ -86,7 +86,7 @@ const UserForm = ({ userId, onSave, onCancel }) => {
       errors.role = 'Role is required';
     }
 
-    // Validate manager assignment for employees
+    // Validate manager assignment for employees only
     if (formData.role === 'EMPLOYEE' && !formData.managerId) {
       errors.managerId = 'Manager is required for employees';
     }
@@ -97,10 +97,19 @@ const UserForm = ({ userId, onSave, onCancel }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [name]: value
+      };
+
+      // Clear manager when role changes to non-employee
+      if (name === 'role' && value !== 'EMPLOYEE') {
+        newData.managerId = '';
+      }
+
+      return newData;
+    });
 
     // Clear validation error when user starts typing
     if (validationErrors[name]) {
@@ -261,6 +270,8 @@ const UserForm = ({ userId, onSave, onCancel }) => {
             >
               <option value="EMPLOYEE">Employee</option>
               <option value="MANAGER">Manager</option>
+              <option value="FINANCE">Finance</option>
+              <option value="DIRECTOR">Director</option>
               <option value="ADMIN">Admin</option>
             </select>
             {validationErrors.role && (
@@ -268,29 +279,29 @@ const UserForm = ({ userId, onSave, onCancel }) => {
             )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="managerId">
-              Manager {formData.role === 'EMPLOYEE' ? '*' : '(Optional)'}
-            </label>
-            <select
-              id="managerId"
-              name="managerId"
-              value={formData.managerId}
-              onChange={handleInputChange}
-              className={validationErrors.managerId ? 'error' : ''}
-              disabled={loading}
-            >
-              <option value="">Select Manager</option>
-              {managers.map(manager => (
-                <option key={manager.id} value={manager.id}>
-                  {manager.firstName} {manager.lastName} ({manager.role})
-                </option>
-              ))}
-            </select>
-            {validationErrors.managerId && (
-              <span className="error-text">{validationErrors.managerId}</span>
-            )}
-          </div>
+          {formData.role === 'EMPLOYEE' && (
+            <div className="form-group">
+              <label htmlFor="managerId">Manager *</label>
+              <select
+                id="managerId"
+                name="managerId"
+                value={formData.managerId}
+                onChange={handleInputChange}
+                className={validationErrors.managerId ? 'error' : ''}
+                disabled={loading}
+              >
+                <option value="">Select Manager</option>
+                {managers.map(manager => (
+                  <option key={manager.id} value={manager.id}>
+                    {manager.firstName} {manager.lastName} ({manager.role})
+                  </option>
+                ))}
+              </select>
+              {validationErrors.managerId && (
+                <span className="error-text">{validationErrors.managerId}</span>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="form-actions">

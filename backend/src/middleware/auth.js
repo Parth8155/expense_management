@@ -82,7 +82,7 @@ const authenticateToken = (req, res, next) => {
 
 /**
  * Middleware to check if user has required role(s)
- * @param {string|string[]} roles - Required role(s) (ADMIN, MANAGER, EMPLOYEE)
+ * @param {string|string[]} roles - Required role(s) (ADMIN, MANAGER, EMPLOYEE, FINANCE, DIRECTOR)
  */
 const authorizeRole = (...roles) => {
   return (req, res, next) => {
@@ -146,6 +146,20 @@ const checkPermission = (user, permission) => {
       'view_own_expenses'
     ],
     MANAGER: [
+      'approve_expense',
+      'reject_expense',
+      'view_team_expenses',
+      'submit_expense',
+      'view_own_expenses'
+    ],
+    FINANCE: [
+      'approve_expense',
+      'reject_expense',
+      'view_team_expenses',
+      'submit_expense',
+      'view_own_expenses'
+    ],
+    DIRECTOR: [
       'approve_expense',
       'reject_expense',
       'view_team_expenses',

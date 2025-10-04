@@ -12,8 +12,6 @@ export { default as ExpenseList } from './ExpenseList';
 export { default as ExpenseDetail } from './ExpenseDetail';
 export { default as ReceiptUpload } from './ReceiptUpload';
 export { default as OCRReview } from './OCRReview';
-export { default as ApprovalManagement } from './ApprovalManagement';
-export { default as PendingApprovals } from './PendingApprovals';
 export { default as ApprovalAction } from './ApprovalAction';
 export { default as ApprovalHistory } from './ApprovalHistory';
 export { default as ApprovalRulesManagement } from './ApprovalRulesManagement';

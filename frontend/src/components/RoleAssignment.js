@@ -10,6 +10,8 @@ const RoleAssignment = ({ userId, currentRole, userName, onRoleChanged, onCancel
   const roles = [
     { value: 'EMPLOYEE', label: 'Employee', description: 'Can submit and view own expenses' },
     { value: 'MANAGER', label: 'Manager', description: 'Can approve team expenses and manage team members' },
+    { value: 'FINANCE', label: 'Finance', description: 'Can review and approve expenses in the finance workflow' },
+    { value: 'DIRECTOR', label: 'Director', description: 'Can provide final approval for expenses' },
     { value: 'ADMIN', label: 'Admin', description: 'Full system access including user and company management' }
   ];
 
@@ -58,6 +60,10 @@ const RoleAssignment = ({ userId, currentRole, userName, onRoleChanged, onCancel
     switch (role) {
       case 'ADMIN':
         return '👑';
+      case 'DIRECTOR':
+        return '🏢';
+      case 'FINANCE':
+        return '💰';
       case 'MANAGER':
         return '👔';
       case 'EMPLOYEE':
@@ -71,6 +77,10 @@ const RoleAssignment = ({ userId, currentRole, userName, onRoleChanged, onCancel
     switch (role) {
       case 'ADMIN':
         return '#dc3545';
+      case 'DIRECTOR':
+        return '#3f51b5';
+      case 'FINANCE':
+        return '#4caf50';
       case 'MANAGER':
         return '#fd7e14';
       case 'EMPLOYEE':

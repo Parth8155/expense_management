@@ -17,8 +17,8 @@ const createUser = async (userData, requestingUserId) => {
   }
 
   // Validate role
-  if (!['ADMIN', 'MANAGER', 'EMPLOYEE'].includes(role)) {
-    throw new Error('Invalid role. Must be ADMIN, MANAGER, or EMPLOYEE');
+  if (!['ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE', 'DIRECTOR'].includes(role)) {
+    throw new Error('Invalid role. Must be ADMIN, MANAGER, EMPLOYEE, FINANCE, or DIRECTOR');
   }
 
   // Check if user already exists
@@ -50,8 +50,8 @@ const createUser = async (userData, requestingUserId) => {
     if (manager.companyId.toString() !== companyId.toString()) {
       throw new Error('Manager must be in the same company');
     }
-    if (manager.role !== 'MANAGER' && manager.role !== 'ADMIN') {
-      throw new Error('Assigned manager must have MANAGER or ADMIN role');
+    if (manager.role !== 'MANAGER' && manager.role !== 'FINANCE' && manager.role !== 'DIRECTOR' && manager.role !== 'ADMIN') {
+      throw new Error('Assigned manager must have MANAGER, FINANCE, DIRECTOR or ADMIN role');
     }
   }
 
@@ -230,14 +230,14 @@ const updateUser = async (userId, updates, requestingUserId) => {
     if (manager.companyId.toString() !== user.companyId.toString()) {
       throw new Error('Manager must be in the same company');
     }
-    if (manager.role !== 'MANAGER' && manager.role !== 'ADMIN') {
-      throw new Error('Assigned manager must have MANAGER or ADMIN role');
+    if (manager.role !== 'MANAGER' && manager.role !== 'FINANCE' && manager.role !== 'DIRECTOR' && manager.role !== 'ADMIN') {
+      throw new Error('Assigned manager must have MANAGER, FINANCE, DIRECTOR or ADMIN role');
     }
   }
 
   // If role is being updated, validate it
-  if (updateFields.role && !['ADMIN', 'MANAGER', 'EMPLOYEE'].includes(updateFields.role)) {
-    throw new Error('Invalid role. Must be ADMIN, MANAGER, or EMPLOYEE');
+  if (updateFields.role && !['ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE', 'DIRECTOR'].includes(updateFields.role)) {
+    throw new Error('Invalid role. Must be ADMIN, MANAGER, EMPLOYEE, FINANCE, or DIRECTOR');
   }
 
   // Update user
@@ -322,8 +322,8 @@ const assignManager = async (employeeId, managerId, requestingUserId) => {
   }
 
   // Verify manager has appropriate role
-  if (manager.role !== 'MANAGER' && manager.role !== 'ADMIN') {
-    throw new Error('Assigned manager must have MANAGER or ADMIN role');
+  if (manager.role !== 'MANAGER' && manager.role !== 'FINANCE' && manager.role !== 'DIRECTOR' && manager.role !== 'ADMIN') {
+    throw new Error('Assigned manager must have MANAGER, FINANCE, DIRECTOR or ADMIN role');
   }
 
   // Update employee's manager
@@ -341,13 +341,13 @@ const assignManager = async (employeeId, managerId, requestingUserId) => {
 /**
  * Change user role
  * @param {string} userId - User ID
- * @param {string} newRole - New role (ADMIN, MANAGER, EMPLOYEE)
+ * @param {string} newRole - New role (ADMIN, MANAGER, EMPLOYEE, FINANCE, DIRECTOR)
  * @param {string} requestingUserId - ID of user making the request
  * @returns {Promise<Object>} Updated user
  */
 const changeRole = async (userId, newRole, requestingUserId) => {
-  if (!['ADMIN', 'MANAGER', 'EMPLOYEE'].includes(newRole)) {
-    throw new Error('Invalid role. Must be ADMIN, MANAGER, or EMPLOYEE');
+  if (!['ADMIN', 'MANAGER', 'EMPLOYEE', 'FINANCE', 'DIRECTOR'].includes(newRole)) {
+    throw new Error('Invalid role. Must be ADMIN, MANAGER, EMPLOYEE, FINANCE, or DIRECTOR');
   }
 
   const user = await User.findById(userId);

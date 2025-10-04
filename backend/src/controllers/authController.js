@@ -134,7 +134,9 @@ const signup = async (req, res) => {
           lastName: user.lastName,
           role: user.role,
           companyId: user.companyId,
-          companyName: company.name
+          companyName: company.name,
+          defaultCurrency: company.defaultCurrency,
+          companyCountry: company.country
         }
       }
     });
@@ -262,6 +264,8 @@ const login = async (req, res) => {
           role: user.role,
           companyId: user.companyId._id,
           companyName: user.companyId.name,
+          defaultCurrency: user.companyId.defaultCurrency,
+          companyCountry: user.companyId.country,
           managerId: user.managerId
         }
       }

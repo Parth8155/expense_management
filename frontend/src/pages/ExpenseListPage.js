@@ -40,6 +40,12 @@ const ExpenseListPage = () => {
     setSelectedExpense(null);
   };
 
+  const handleExpenseUpdated = (updatedExpense) => {
+    // Refresh the list when an expense is updated (e.g., approved/rejected)
+    setCurrentView('list');
+    setSelectedExpense(null);
+  };
+
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'grey.50' }}>
       {/* Header */}
@@ -81,6 +87,7 @@ const ExpenseListPage = () => {
             onBack={handleBack}
             onEdit={handleEditExpense}
             onDelete={handleExpenseDeleted}
+            onExpenseUpdated={handleExpenseUpdated}
           />
         )}
 
