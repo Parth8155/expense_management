@@ -1,0 +1,240 @@
+.currency-settings {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+}
+
+.currency-settings-header {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.currency-settings-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.error {
+  text-align: center;
+  padding: 40px;
+  color: #ef4444;
+  font-size: 16px;
+}
+
+.error-message {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.success-message {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #16a34a;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.currency-settings-content {
+  max-width: 700px;
+}
+
+.currency-info {
+  display: grid;
+  gap: 24px;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.info-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* Currency Display */
+.currency-display {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.currency-code {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111827;
+  padding: 8px 12px;
+  background: #f3f4f6;
+  border-radius: 6px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.currency-note {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+/* Rate Status */
+.rate-status {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.status-indicator {
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: inline-block;
+  width: fit-content;
+}
+
+.status-fresh {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-current {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.status-stale {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-never {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.last-update {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.cache-indicator {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Rates Summary */
+.rates-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rates-count {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.sample-rates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.rate-item {
+  font-size: 13px;
+  color: #4b5563;
+  font-family: 'Courier New', monospace;
+}
+
+.more-rates {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+}
+
+/* Update Section */
+.update-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.update-description {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.update-button {
+  padding: 10px 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: fit-content;
+}
+
+.update-button:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.update-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .currency-settings {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .currency-settings-header h2 {
+    font-size: 18px;
+  }
+
+  .currency-info {
+    gap: 20px;
+  }
+
+  .sample-rates {
+    padding: 8px;
+  }
+
+  .update-button {
+    width: 100%;
+  }
+}

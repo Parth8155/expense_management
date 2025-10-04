@@ -1,0 +1,270 @@
+.role-assignment-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.role-assignment-header {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.role-assignment-header h3 {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 24px;
+}
+
+.user-info {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.error-message {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  color: #c33;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.role-assignment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.current-role-section h4,
+.new-role-section h4 {
+  margin: 0 0 15px 0;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.role-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 2px solid #dee2e6;
+}
+
+.role-icon {
+  font-size: 20px;
+}
+
+.role-name {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.role-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.role-option {
+  display: block;
+  cursor: pointer;
+  border: 2px solid #dee2e6;
+  border-radius: 6px;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.role-option:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
+}
+
+.role-option input[type="radio"] {
+  display: none;
+}
+
+.role-option input[type="radio"]:checked + .role-option-content {
+  background-color: #e3f2fd;
+  border-color: #007bff;
+}
+
+.role-option input[type="radio"]:disabled + .role-option-content {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.role-option-content {
+  padding: 15px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.role-option-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.current-badge {
+  background-color: #28a745;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.role-description {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.role-change-warning {
+  display: flex;
+  gap: 12px;
+  padding: 15px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  color: #856404;
+}
+
+.warning-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-content strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.warning-content ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.warning-content li {
+  margin-bottom: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #dee2e6;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.2s;
+  min-width: 120px;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #545b62;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .role-assignment-container {
+    margin: 10px;
+    padding: 15px;
+  }
+
+  .role-assignment-header h3 {
+    font-size: 20px;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .role-change-warning {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .warning-icon {
+    align-self: flex-start;
+  }
+}
+
+/* Focus states */
+.role-option:focus-within {
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.btn:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Animation for role selection */
+.role-option input[type="radio"]:checked + .role-option-content {
+  animation: roleSelected 0.3s ease-out;
+}
+
+@keyframes roleSelected {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

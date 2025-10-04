@@ -1,0 +1,84 @@
+.company-settings {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.company-settings-header {
+  margin-bottom: 32px;
+}
+
+.company-settings-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.company-settings-header p {
+  margin: 0;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+.settings-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.access-denied {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.access-denied h2 {
+  margin: 0 0 16px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #ef4444;
+}
+
+.access-denied p {
+  margin: 0;
+  font-size: 16px;
+  color: #6b7280;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .company-settings {
+    padding: 16px;
+  }
+
+  .company-settings-header {
+    margin-bottom: 24px;
+  }
+
+  .company-settings-header h1 {
+    font-size: 24px;
+  }
+
+  .company-settings-header p {
+    font-size: 14px;
+  }
+
+  .settings-sections {
+    gap: 16px;
+  }
+
+  .access-denied {
+    padding: 40px 16px;
+  }
+
+  .access-denied h2 {
+    font-size: 20px;
+  }
+
+  .access-denied p {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,55 @@
+.ocr-review {
+  margin: 16px 0;
+}
+
+.field-container {
+  margin-bottom: 16px;
+}
+
+.field-container .MuiTextField-root {
+  margin-top: 8px;
+}
+
+.confidence-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.confidence-high {
+  color: #4caf50;
+}
+
+.confidence-medium {
+  color: #ff9800;
+}
+
+.confidence-low {
+  color: #f44336;
+}
+
+.raw-text-container {
+  margin-top: 16px;
+}
+
+.raw-text-content {
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 12px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}

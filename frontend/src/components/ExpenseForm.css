@@ -1,0 +1,175 @@
+/* ExpenseForm.css */
+.expense-form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.expense-form-paper {
+  padding: 24px;
+}
+
+.expense-form-title {
+  margin-bottom: 24px;
+  color: #1976d2;
+}
+
+.expense-form-error {
+  margin-bottom: 16px;
+}
+
+.expense-form-grid {
+  margin-top: 16px;
+}
+
+.expense-line-container {
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+.expense-line-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.expense-line-title {
+  flex-grow: 1;
+  font-weight: 600;
+}
+
+.expense-form-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.expense-form-submit-button {
+  min-width: 120px;
+}
+
+.expense-form-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .expense-form-container {
+    padding: 10px;
+  }
+  
+  .expense-form-paper {
+    padding: 16px;
+  }
+  
+  .expense-form-actions {
+    flex-direction: column;
+  }
+  
+  .expense-form-actions button {
+    width: 100%;
+  }
+}
+
+/* Form field spacing */
+.expense-form-field {
+  margin-bottom: 16px;
+}
+
+/* Currency and category dropdowns */
+.expense-form-select {
+  text-align: left;
+}
+
+/* Date picker styling */
+.expense-form-date {
+  width: 100%;
+}
+
+/* Expense lines section */
+.expense-lines-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.expense-line-item {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.expense-line-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.expense-line-delete-button {
+  color: #d32f2f;
+}
+
+.expense-line-delete-button:hover {
+  background-color: rgba(211, 47, 47, 0.04);
+}
+
+/* Validation styles */
+.expense-form-field.error input {
+  border-color: #d32f2f;
+}
+
+.expense-form-field.error .MuiFormLabel-root {
+  color: #d32f2f;
+}
+
+/* Success state */
+.expense-form-success {
+  margin-bottom: 16px;
+}
+
+/* Loading overlay */
+.expense-form-loading-overlay {
+  position: relative;
+}
+
+.expense-form-loading-overlay::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* Form section dividers */
+.expense-form-divider {
+  margin: 24px 0;
+}
+
+/* Helper text styling */
+.expense-form-helper-text {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 8px;
+}
+
+/* Required field indicator */
+.expense-form-required::after {
+  content: ' *';
+  color: #d32f2f;
+}

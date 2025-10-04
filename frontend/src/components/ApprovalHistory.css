@@ -1,0 +1,310 @@
+.approval-history {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.approval-history h4 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 18px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.no-history {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  font-style: italic;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 15px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e0e0e0;
+}
+
+.timeline-step {
+  position: relative;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+}
+
+.timeline-step:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -22px;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.timeline-step.pending .timeline-marker {
+  background: #f5f5f5;
+  border: 2px solid #ddd;
+  color: #999;
+}
+
+.timeline-step.current .timeline-marker {
+  background: #2196f3;
+  border: 2px solid #1976d2;
+  color: white;
+}
+
+.timeline-step.completed .timeline-marker,
+.timeline-step.approved .timeline-marker {
+  background: #4caf50;
+  border: 2px solid #388e3c;
+  color: white;
+}
+
+.timeline-step.rejected .timeline-marker {
+  background: #f44336;
+  border: 2px solid #d32f2f;
+  color: white;
+}
+
+.step-icon {
+  font-size: 16px;
+}
+
+.timeline-content {
+  background: #f9f9f9;
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid #e0e0e0;
+}
+
+.timeline-step.current .timeline-content {
+  border-left-color: #2196f3;
+  background: #e3f2fd;
+}
+
+.timeline-step.approved .timeline-content,
+.timeline-step.completed .timeline-content {
+  border-left-color: #4caf50;
+  background: #e8f5e8;
+}
+
+.timeline-step.rejected .timeline-content {
+  border-left-color: #f44336;
+  background: #ffebee;
+}
+
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.step-header h5 {
+  margin: 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.current-indicator {
+  color: #2196f3;
+  font-weight: normal;
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.pending {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-badge.current {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.status-badge.approved,
+.status-badge.completed {
+  background: #e8f5e8;
+  color: #388e3c;
+}
+
+.status-badge.rejected {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.step-details {
+  color: #555;
+}
+
+.approvers-list {
+  margin-bottom: 12px;
+}
+
+.approvers-list ul {
+  margin: 8px 0 0 0;
+  padding-left: 20px;
+}
+
+.approvers-list li {
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.specific-approver-badge {
+  background: #ff9800;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.action-details {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+}
+
+.action-info,
+.action-date {
+  margin-bottom: 8px;
+}
+
+.action-comments {
+  margin-top: 8px;
+}
+
+.action-comments p {
+  margin: 4px 0 0 0;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  font-style: italic;
+}
+
+.pending-info {
+  color: #666;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+.overall-status {
+  margin-top: 30px;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  border-top: 3px solid #ddd;
+}
+
+.status-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.status-summary.pending {
+  border-top-color: #ff9800;
+}
+
+.status-summary.approved {
+  border-top-color: #4caf50;
+}
+
+.status-summary.rejected {
+  border-top-color: #f44336;
+}
+
+.status-text {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.status-summary.pending .status-text {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-summary.approved .status-text {
+  background: #e8f5e8;
+  color: #388e3c;
+}
+
+.status-summary.rejected .status-text {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.next-step-info {
+  color: #666;
+  font-size: 14px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .approval-history {
+    padding: 16px;
+  }
+  
+  .timeline {
+    padding-left: 25px;
+  }
+  
+  .timeline-marker {
+    left: -20px;
+    width: 25px;
+    height: 25px;
+  }
+  
+  .step-icon {
+    font-size: 14px;
+  }
+  
+  .timeline-content {
+    padding: 12px;
+  }
+  
+  .step-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .step-header h5 {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,97 @@
+.expense-list-container {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.expense-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.expense-list-filters {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #fafafa;
+}
+
+.expense-list-table {
+  min-width: 750px;
+}
+
+.expense-description {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.expense-amount {
+  font-weight: 500;
+}
+
+.expense-converted-amount {
+  font-size: 0.75rem;
+  color: #666;
+  display: block;
+}
+
+.expense-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.expense-status-chip {
+  font-size: 0.75rem;
+  height: 24px;
+}
+
+.expense-empty-state {
+  padding: 24px;
+  text-align: center;
+  color: #666;
+}
+
+.expense-loading {
+  display: flex;
+  justify-content: center;
+  padding: 24px;
+}
+
+.expense-error {
+  margin: 16px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .expense-list-filters .MuiGrid-container {
+    gap: 8px;
+  }
+  
+  .expense-list-table {
+    min-width: 600px;
+  }
+  
+  .expense-description {
+    max-width: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .expense-list-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .expense-list-table {
+    min-width: 500px;
+  }
+  
+  .expense-description {
+    max-width: 100px;
+  }
+}

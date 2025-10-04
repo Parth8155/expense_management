@@ -1,0 +1,256 @@
+.approval-action-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.approval-action-modal {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.approval-action-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f5f5f5;
+  border-radius: 8px 8px 0 0;
+}
+
+.approval-action-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.close-button:hover {
+  background-color: #e0e0e0;
+}
+
+.close-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.approval-action-content {
+  padding: 20px;
+}
+
+.expense-details-section {
+  margin-bottom: 24px;
+}
+
+.expense-details-section h4 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.expense-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-item label {
+  font-weight: 600;
+  color: #555;
+  font-size: 14px;
+}
+
+.detail-item span {
+  color: #333;
+}
+
+.amount-display {
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+.amount-display .original-amount {
+  font-size: 12px;
+  color: #666;
+  font-weight: normal;
+  margin-top: 2px;
+}
+
+.receipt-link {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.receipt-link:hover {
+  text-decoration: underline;
+}
+
+.approval-action-form {
+  border-top: 1px solid #e0e0e0;
+  padding-top: 20px;
+}
+
+.comments-section {
+  margin-bottom: 20px;
+}
+
+.comments-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.required {
+  color: #d32f2f;
+}
+
+.comments-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.comments-textarea:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.comments-textarea:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #d32f2f;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border: 1px solid #ffcdd2;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.cancel-button,
+.submit-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.cancel-button {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.cancel-button:hover {
+  background-color: #e0e0e0;
+}
+
+.submit-button {
+  color: white;
+}
+
+.submit-button.approve {
+  background-color: #4caf50;
+}
+
+.submit-button.approve:hover {
+  background-color: #45a049;
+}
+
+.submit-button.reject {
+  background-color: #f44336;
+}
+
+.submit-button.reject:hover {
+  background-color: #da190b;
+}
+
+.submit-button:disabled,
+.cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .approval-action-modal {
+    width: 95%;
+    margin: 10px;
+  }
+  
+  .approval-action-header,
+  .approval-action-content {
+    padding: 16px;
+  }
+  
+  .expense-details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .action-buttons {
+    flex-direction: column-reverse;
+  }
+  
+  .cancel-button,
+  .submit-button {
+    width: 100%;
+  }
+}

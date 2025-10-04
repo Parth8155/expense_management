@@ -1,0 +1,298 @@
+.approver-sequence-builder {
+  margin-top: 20px;
+}
+
+.sequence-builder-loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.sequence-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.sequence-header h3 {
+  margin: 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.sequence-description {
+  background: #f5f5f5;
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border-left: 4px solid #1976d2;
+}
+
+.sequence-description p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.approval-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.approval-step {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  transition: all 0.2s ease;
+  cursor: move;
+}
+
+.approval-step:hover {
+  border-color: #1976d2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.approval-step.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+}
+
+.step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.step-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.step-number {
+  font-weight: 600;
+  color: #1976d2;
+  font-size: 16px;
+}
+
+.drag-handle {
+  color: #999;
+  cursor: move;
+  font-size: 16px;
+  user-select: none;
+}
+
+.step-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.step-content {
+  margin-top: 12px;
+}
+
+.approvers-section {
+  margin-bottom: 16px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.approvers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.approver-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.approver-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.approver-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.approver-role {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.specific-approver-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 12px;
+  cursor: pointer;
+}
+
+.specific-approver-checkbox input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+.checkbox-label {
+  font-size: 12px;
+  color: #666;
+  white-space: nowrap;
+}
+
+.add-approver {
+  margin-top: 12px;
+}
+
+.approver-select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background: white;
+}
+
+.approver-select:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.conditional-info {
+  margin-top: 24px;
+  padding: 16px;
+  background: #e8f5e8;
+  border-radius: 4px;
+  border-left: 4px solid #388e3c;
+}
+
+.conditional-info h4 {
+  margin: 0 0 8px 0;
+  color: #2e7d32;
+  font-size: 14px;
+}
+
+.conditional-info p {
+  margin: 0;
+  color: #2e7d32;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.error-text {
+  color: #d32f2f;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-sm {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.btn-primary {
+  background: #1976d2;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #1565c0;
+}
+
+.btn-secondary {
+  background: #757575;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #616161;
+}
+
+.btn-danger {
+  background: #d32f2f;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c62828;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .sequence-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .step-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .step-info {
+    justify-content: center;
+  }
+
+  .approver-item {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .specific-approver-checkbox {
+    margin: 0;
+    justify-content: center;
+  }
+
+  .conditional-info {
+    padding: 12px;
+  }
+}
